@@ -1,0 +1,148 @@
+################ Generate self signed certificate on node exporter machine #######
+[root@node1 ~]# sudo openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout node_exporter.key -out node_exporter.crt -subj "/C=US/ST=California/L=Oakloan/O=MyOrg/CN=localhost" -addext "subjectAltName = DNS:localhost"
+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*............+.........+...+........+.+......+...+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*........+......+...+...............+.............+.....+..........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+...........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*....+....................+.......+......+........+.+...+...+..+.+......+......+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.+...+.+........+...+....+...+............+.....+...+...+....+.....+.+.....+............................+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-----
+[root@node1 ~]# ls -ltr
+total 10192
+-rw-------. 1 root    root        1097 Nov  6 17:54 anaconda-ks.cfg
+drwxr-xr-x. 2 root    root           6 Nov  6 22:45 findfiles
+-rw-r--r--. 1 root    root         486 Nov  6 23:21 backup.tar.bz2
+drwxr-xr-x. 2 natasha natasha       56 Nov 13 05:33 node_exporter-1.7.0.linux-amd64
+-rw-r--r--. 1 root    root    10419253 Nov 13 05:33 node_exporter-1.7.0.linux-amd64.tar.gz
+-rw-------. 1 root    root        1704 Nov 13 16:41 node_exporter.key
+-rw-r--r--. 1 root    root        1326 Nov 13 16:41 node_exporter.crt
+[root@node1 ~]#
+
+[root@node1 ~]# cp node_exporter.key node_exporter.crt config.yml /etc/node_exporter/
+[root@node1 node_exporter]# chown -R node_exporter:node_exporter /etc/node_exporter
+
+[root@node1 node_exporter]# ls -ld /etc/node_exporter
+drwxr-xr-x. 2 node_exporter node_exporter 74 Nov 13 16:45 /etc/node_exporter
+
+[root@node1 node_exporter]# ls -ltr /etc/node_exporter
+total 12
+-rw-------. 1 node_exporter node_exporter 1704 Nov 13 16:44 node_exporter.key
+-rw-r--r--. 1 node_exporter node_exporter 1326 Nov 13 16:44 node_exporter.crt
+-rw-r--r--. 1 node_exporter node_exporter   84 Nov 13 16:44 config.yml
+[root@node1 node_exporter]#
+
+
+#########Add config.yml entry to ExecStart#######################################################################
+
+
+[root@node1 node_exporter]# vi /etc/systemd/system/node_exporter.service
+[root@node1 node_exporter]# cat /etc/systemd/system/node_exporter.service
+[Unit]
+Description=Node exporter of linux
+Documentation=https://prometheus.io/docs/introduction/overview/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Restart=on-failure
+Type=simple
+ExecStart=/usr/local/bin/node_exporter --web.config.file=/etc/node_exporter/config.yml
+
+[Install]
+WantedBy=multi-user.target
+
+#########    restart #######################################################################
+
+[root@node1 node_exporter]# systemctl daemon-reload
+[root@node1 node_exporter]# systemctl restart node_exporter.service
+[root@node1 node_exporter]# systemctl status node_exporter.service
+● node_exporter.service - Node exporter of linux
+     Loaded: loaded (/etc/systemd/system/node_exporter.service; enabled; vendor preset: disabled)
+     Active: active (running) since Mon 2023-11-13 16:53:24 IST; 7s ago
+       Docs: https://prometheus.io/docs/introduction/overview/
+   Main PID: 10230 (node_exporter)
+      Tasks: 4 (limit: 10972)
+     Memory: 4.9M
+        CPU: 13ms
+     CGroup: /system.slice/node_exporter.service
+             └─10230 /usr/local/bin/node_exporter --web.config.file=/etc/node_exporter/config.yml
+
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=thermal_zone
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=time
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=timex
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=udp_queues
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=uname
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=vmstat
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=xfs
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=node_exporter.go:117 level=info collector=zfs
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.437Z caller=tls_config.go:274 level=info msg="Listening on" address=[::]:9100
+Nov 13 16:53:24 node1.domainX.example.com node_exporter[10230]: ts=2023-11-13T11:23:24.438Z caller=tls_config.go:310 level=info msg="TLS is enabled." http2=true address=[::]:9100
+[root@node1 node_exporter]#
+
+########################################################Copy the cert file from node export host to prometheus node######################################################################################
+#execute belwo command on proemetheus node
+[root@localhost ~]# scp rkyasan44@192.168.1.8:/etc/node_exporter/node_exporter.crt /home/rkyasan44/
+The authenticity of host '192.168.1.8 (192.168.1.8)' can't be established.
+ED25519 key fingerprint is SHA256:6KUbogV7+hPmuig28Gm4Ybtx6YNNnGl47XA0NdCeyiw.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.1.8' (ED25519) to the list of known hosts.
+rkyasan44@192.168.1.8's password:
+Permission denied, please try again.
+rkyasan44@192.168.1.8's password:
+node_exporter.crt                                                                                                                      100% 1326   726.5KB/s   00:00
+
+
+###########Copy crt file etc folder at proemtheus node:
+
+[root@localhost ~]# chown prometheus:prometheus node_exporter.crt
+[root@localhost ~]# cp node_exporter.crt /etc/prometheus/
+
+############Modify the prometheus config file to point cert.
+[root@localhost ~]# cat /etc/prometheus/prometheus.yml
+................................................
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "nodeexporter"
+    scheme: https
+    tls_config:
+      ca_file: /etc/prometheus/node_exporter.crt  ##############<<<<<<<<<<<<<<<<<<<<==========================================
+      insecure_skip_verify: true                  ##############<<<<<<<<<<<<<<<<<<<<=========================================              
+    static_configs:
+      - targets: ["192.168.1.8:9100"]
+[root@localhost ~]#
+
+
+### insecure_skip == indicates skip verify cert, we do it only self sign certs. otherwise we have to properly cert verfification.
+
+[root@localhost ~]# curl https://192.168.1.8:9100/metrics
+curl: (60) SSL certificate problem: self-signed certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+
+[root@localhost ~]# curl -k https://192.168.1.8:9100/metrics  ============================> -k 
+# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
+# TYPE go_gc_duration_seconds summary
+go_gc_duration_seconds{quantile="0"} 0
+go_gc_duration_seconds{quantile="0.25"} 0
+go_gc_duration_seconds{quantile="0.5"} 0
+go_gc_duration_seconds{quantile="0.75"} 0
+
+
+
+
+
+
+
+
+
+
