@@ -10,6 +10,7 @@ Step2:
 3. give permissions
 
 [root@localhost ~]# mkdir /etc/prometheus
+
 [root@localhost ~]# mkdir /var/lib/prometheus
 
 [root@localhost ~]# chown prometheus:prometheus /etc/prometheus
@@ -17,7 +18,6 @@ Step2:
 [root@localhost ~]# chown prometheus:prometheus /var/lib/prometheus
 
 [root@localhost ~]#
-
 
 ![image](https://github.com/kramsagar/prometheus/assets/130482831/7eae8705-54c6-4a34-bcef-0f983948d4fd)
 
