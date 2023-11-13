@@ -10,9 +10,13 @@ Step2:
 3. give permissions
 
 [root@localhost ~]# mkdir /etc/prometheus
+
 [root@localhost ~]# mkdir /var/lib/prometheus
+
 [root@localhost ~]# chown prometheus:prometheus /etc/prometheus
+
 [root@localhost ~]# chown prometheus:prometheus /var/lib/prometheus
+
 [root@localhost ~]#
 
 
