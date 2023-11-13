@@ -146,6 +146,11 @@ lines 1-21/21 (END)
 Try access now: http://192.168.1.14:9090/graph?g0.expr=up&g0.tab=1&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h
 
 
+[root@localhost system]# systemctl enable prometheus   ##Now enable to start service automatically post reboot
+Created symlink /etc/systemd/system/multi-user.target.wants/prometheus.service → /etc/systemd/system/prometheus.service.
+[root@localhost system]#
+
+
 
 
 
