@@ -37,5 +37,8 @@ scrape_configs:
 [root@localhost system]#
 
 
+#Now review prometheus UI jobs info:
+=========================================
 ![image](https://github.com/kramsagar/prometheus/assets/130482831/4e0a7847-b648-4876-b5a6-a1ab55ea2d3e)
+http://192.168.1.14:9090/targets?search=
 
