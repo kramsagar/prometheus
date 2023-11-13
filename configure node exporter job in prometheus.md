@@ -35,3 +35,7 @@ scrape_configs:
       - targets: ["192.168.1.8:9100"]
 [root@localhost system]# systemctl restart prometheus.service
 [root@localhost system]#
+
+
+![image](https://github.com/kramsagar/prometheus/assets/130482831/4e0a7847-b648-4876-b5a6-a1ab55ea2d3e)
+
